@@ -1,6 +1,9 @@
 name: Tests
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *' # or whatever your interval is set to
   push:
     branches:
       - main
