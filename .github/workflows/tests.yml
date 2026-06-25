@@ -38,47 +38,29 @@ jobs:
           cat << 'EOF' > .env
           OCI_REGION="sa-bogota-1"
           OCI_USER_ID="${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}"
-          OCI_TENANCY_ID="${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}"
+          OCI_TENANCY_ID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           OCI_KEY_FINGERPRINT="${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}"
           OCI_PRIVATE_KEY_FILENAME="oci_private_key.pem"
-
-          OCI_COMPARTMENT_OCID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-          COMPARTMENT_OCID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-          compartmentId="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-
           OCI_IMAGE_ID="ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
           OCI_OCPUS="4"
           OCI_MEMORY_IN_GBS="24"
           OCI_SHAPE="VM.Standard.A1.Flex"
           OCI_MAX_INSTANCES="1"
           OCI_SSH_PUBLIC_KEY="${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}"
-
           TELEGRAM_USER_ID="${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}"
           TELEGRAM_BOT_API_KEY="${{ secrets.TELEGRAM_BOT_API_KEY || vars.TELEGRAM_BOT_API_KEY }}"
           OCI_AVAILABILITY_DOMAIN="${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}"
           OCI_SUBNET_ID="${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
           EOF
 
-      # 2b. DIAGNOSTIC: shows how the code reads compartment + config (remove once fixed)
-      - name: Find compartment usage in code
-        run: |
-          echo "=== every place 'compartment' appears in PHP ==="
-          grep -rin "compartment" --include="*.php" . | grep -v vendor/ || echo "no matches"
-          echo ""
-          echo "=== how config is read (getenv / \$_ENV / \$_SERVER) ==="
-          grep -rin -E "getenv|\\\$_ENV|\\\$_SERVER" --include="*.php" . | grep -v vendor/ || echo "no matches"
-
-      # 3. Executes the script with vars injected as REAL env vars
+      # 3. Executes the script with vars injected as REAL env vars (so getenv works)
       - name: Execute Provisioner Script
         env:
           OCI_REGION: "sa-bogota-1"
           OCI_USER_ID: "${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}"
-          OCI_TENANCY_ID: "${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}"
+          OCI_TENANCY_ID: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           OCI_KEY_FINGERPRINT: "${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}"
           OCI_PRIVATE_KEY_FILENAME: "oci_private_key.pem"
-          OCI_COMPARTMENT_OCID: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-          COMPARTMENT_OCID: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-          compartmentId: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           OCI_IMAGE_ID: "ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
           OCI_OCPUS: "4"
           OCI_MEMORY_IN_GBS: "24"
