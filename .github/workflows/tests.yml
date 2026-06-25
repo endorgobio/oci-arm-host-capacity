@@ -28,15 +28,25 @@ jobs:
       - name: Execute Provisioner Script
         run: php index.php
         env:
-          # Match exactly what the Hitrov code library looks for natively:
+          # Standard Uppercase (Matches your current Secrets exactly)
           OCI_REGION: ${{ secrets.OCI_REGION }}
           OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
           OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
           OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
           OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
-          
-          # Optional but recommended parameter matching your secrets list
           OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID }}
+
+          # Lowercase/CamelCase Fallbacks (Forces Hitrov signer library to catch them)
+          ociUserId: ${{ secrets.OCI_USER_OCID }}
+          ociTenancyId: ${{ secrets.OCI_TENANCY_OCID }}
+          ociKeyFingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          ociPrivateKeyFilename: ${{ secrets.OCI_PRIVATE_KEY }}
+
+          # Alternate Library Standards
+          OCI_USER_ID: ${{ secrets.OCI_USER_OCID }}
+          OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+          OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY }}
           
           # Hardware Specs
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
