@@ -14,7 +14,7 @@ jobs:
     name: Run Capacity Provisioner Loop
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP Environment
         uses: shivammathur/setup-php@v2
