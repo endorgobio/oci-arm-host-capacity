@@ -51,21 +51,20 @@ jobs:
           OCI_SUBNET_ID="${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
           EOF
 
-      # PROBE: prints exactly what PHP getenv() sees, using the same env block (remove once fixed)
-      - name: Probe runtime env
-        env:
-          OCI_REGION: "sa-bogota-1"
-          OCI_USER_ID: "${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}"
-          OCI_TENANCY_ID: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-          OCI_KEY_FINGERPRINT: "${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}"
-          OCI_AVAILABILITY_DOMAIN: "${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}"
-          OCI_SUBNET_ID: "${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
+      # DIAGNOSTIC: prints the PHP that handles tenancy/compartment (remove once fixed)
+      - name: Dump Config + OciApi internals
         run: |
-          php -r '
-            foreach (["OCI_REGION","OCI_USER_ID","OCI_TENANCY_ID","OCI_KEY_FINGERPRINT","OCI_AVAILABILITY_DOMAIN","OCI_SUBNET_ID"] as $k) {
-              $v = getenv($k);
-              echo str_pad($k, 26) . ": [" . ($v === false ? "FALSE" : (strlen($v) . " chars")) . "]\n";
-            }'
+          echo "===== Config class (constructor + property assignment) ====="
+          find . -path ./vendor -prune -o -name "Config.php" -print | grep -v vendor | while read f; do
+            echo "--- $f ---"
+            grep -n "tenancy\|compartment\|function __construct\|public \$\|private \$\|protected \$" "$f"
+          done
+          echo ""
+          echo "===== index.php lines 1-55 ====="
+          sed -n '1,55p' index.php
+          echo ""
+          echo "===== src/OciApi.php lines 40-135 ====="
+          sed -n '40,135p' src/OciApi.php
 
       - name: Execute Provisioner Script
         env:
