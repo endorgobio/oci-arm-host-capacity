@@ -33,23 +33,25 @@ jobs:
           EOF
           chmod 600 oci_private_key.pem
 
-      # 2. Generates the .env file with strict double quotes to prevent whitespace parser failures
+      # 2. Generates the .env file with hardcoded compartment ID
       - name: Generate Local .env File
         run: |
           cat << 'EOF' > .env
-          OCI_REGION="${{ secrets.OCI_REGION || vars.OCI_REGION }}"
+          OCI_REGION="sa-bogota-1"
           OCI_USER_ID="${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}"
           OCI_TENANCY_ID="${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}"
           OCI_KEY_FINGERPRINT="${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}"
           OCI_PRIVATE_KEY_FILENAME="oci_private_key.pem"
-          OCI_COMPARTMENT_OCID="${{ secrets.OCI_COMPARTMENT_OCID || vars.OCI_COMPARTMENT_OCID }}"
-          COMPARTMENT_OCID="${{ secrets.OCI_COMPARTMENT_OCID || vars.OCI_COMPARTMENT_OCID }}"
           
-          OCI_IMAGE_ID="${{ secrets.OCI_IMAGE_ID || vars.OCI_IMAGE_ID }}"
-          OCI_OCPUS="${{ secrets.OCI_OCPUS || vars.OCI_OCPUS }}"
-          OCI_MEMORY_IN_GBS="${{ secrets.OCI_MEMORY_IN_GBS || vars.OCI_MEMORY_IN_GBS }}"
-          OCI_SHAPE="${{ secrets.OCI_SHAPE || vars.OCI_SHAPE }}"
-          OCI_MAX_INSTANCES="${{ secrets.OCI_MAX_INSTANCES || vars.OCI_MAX_INSTANCES }}"
+          # HARDCODED COMPARTMENT TARGETS
+          OCI_COMPARTMENT_OCID="ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
+          COMPARTMENT_OCID="ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
+          
+          OCI_IMAGE_ID="ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
+          OCI_OCPUS="4"
+          OCI_MEMORY_IN_GBS="24"
+          OCI_SHAPE="VM.Standard.A1.Flex"
+          OCI_MAX_INSTANCES="1"
           OCI_SSH_PUBLIC_KEY="${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}"
           
           TELEGRAM_USER_ID="${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}"
