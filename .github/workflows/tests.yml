@@ -3,7 +3,7 @@ name: OCI Instance Provisioner Loop
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *' # Kicks off automatically every 15 minutes 
+    - cron: '*/15 * * * *' # Kicks off automatically every 15 minutes
   push:
     branches:
       - main
@@ -25,7 +25,7 @@ jobs:
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
 
-      # This creates a real, temporary file on the runner containing your private key text
+      # Creates the temporary file on the runner containing your private key text
       - name: Create Private Key File
         run: |
           echo "${{ secrets.OCI_PRIVATE_KEY || vars.OCI_PRIVATE_KEY }}" > oci_private_key.pem
@@ -38,11 +38,11 @@ jobs:
           OCI_USER_ID: ${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}
-          
-          # We pass the PATH to the key file we just generated above!
           OCI_PRIVATE_KEY_FILENAME: oci_private_key.pem
           
+          # DUAL MAPPING FOR COMPARTMENT: Catches whatever format the index.php script demands
           OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID || vars.OCI_COMPARTMENT_OCID }}
+          COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID || vars.OCI_COMPARTMENT_OCID }}
           
           # Hardware Specifications
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID || vars.OCI_IMAGE_ID }}
