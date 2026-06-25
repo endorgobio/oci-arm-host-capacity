@@ -1,61 +1,41 @@
-name: Tests
+name: OCI Instance Provisioner Loop
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *' # Or whatever your preferred polling interval is set to
+    - cron: '*/15 * * * *' # Kicks off automatically every 15 minutes
   push:
-    branches:
-      - main
-  pull_request:
     branches:
       - main
 
 jobs:
-  tests:
+  provision:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-versions: ['8.3']
-    name: integration-tests (PHP ${{ matrix.php-versions }})
+    name: Run Capacity Provisioner Loop
     steps:
-      - uses: actions/checkout@v1
-      - name: Install PHP
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP Environment
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
-      
-      - name: Validate composer.json and composer.lock
-        run: composer validate
+          php-version: '8.3'
+          extensions: curl, openssl, mbstring
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-          
-      - uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.php-version }}-composer-${{ matrix.dependencies }}-
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --optimize-autoloader
 
-      - name: Install dependencies
-        run: |
-          composer update --prefer-dist --no-progress
-          
-      - name: Run test suite
-        run: |
-          vendor/bin/phpunit --color tests/
+      - name: Execute Provisioner Script
+        run: php index.php
         env:
-          # Mapped to match your pre-existing GitHub Secrets names exactly 
+          # Your pre-existing GitHub Secrets
           OCI_REGION: ${{ secrets.OCI_REGION }}
           OCI_USER_ID: ${{ secrets.OCI_USER_OCID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
           OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY }}
           
-          # Hardware spec parameters to add as static secrets
+          # The hardware spec secrets you just added
           OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
           OCI_OCPUS: ${{ secrets.OCI_OCPUS }}
           OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS }}
@@ -63,7 +43,7 @@ jobs:
           OCI_MAX_INSTANCES: ${{ secrets.OCI_MAX_INSTANCES }}
           OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
           
-          # Optional notification overrides if you choose to set them up
+          # Optional parameters
           TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
           TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY }}
           OCI_AVAILABILITY_DOMAIN: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
