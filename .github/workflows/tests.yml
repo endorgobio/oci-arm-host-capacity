@@ -59,18 +59,16 @@ jobs:
           OCI_SUBNET_ID="${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
           EOF
 
-      # 2b. Debug: confirm what PHP actually reads (remove once working)
-      - name: Debug compartment value
+      # 2b. DIAGNOSTIC: shows how the code reads compartment + config (remove once fixed)
+      - name: Find compartment usage in code
         run: |
-          echo "=== grep .env ==="
-          grep -i compartment .env || echo "NOT FOUND in .env"
-          echo "=== what PHP sees ==="
-          php -r 'require "vendor/autoload.php";
-            $d = Dotenv\Dotenv::createImmutable(__DIR__); $d->safeLoad();
-            echo "\$_ENV:  [".($_ENV["OCI_COMPARTMENT_OCID"] ?? "NULL")."]\n";
-            echo "getenv: [".(getenv("OCI_COMPARTMENT_OCID") ?: "NULL")."]\n";'
+          echo "=== every place 'compartment' appears in PHP ==="
+          grep -rin "compartment" --include="*.php" . | grep -v vendor/ || echo "no matches"
+          echo ""
+          echo "=== how config is read (getenv / \$_ENV / \$_SERVER) ==="
+          grep -rin -E "getenv|\\\$_ENV|\\\$_SERVER" --include="*.php" . | grep -v vendor/ || echo "no matches"
 
-      # 3. Executes the script with vars also injected as REAL env vars
+      # 3. Executes the script with vars injected as REAL env vars
       - name: Execute Provisioner Script
         env:
           OCI_REGION: "sa-bogota-1"
