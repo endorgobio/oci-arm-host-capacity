@@ -3,7 +3,7 @@ name: OCI Instance Provisioner Loop
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *' # Kicks off automatically every 15 minutes
+    - cron: '*/15 * * * *' # Kicks off automatically every 15 minutes 
   push:
     branches:
       - main
