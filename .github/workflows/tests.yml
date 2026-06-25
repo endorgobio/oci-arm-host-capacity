@@ -46,6 +46,7 @@ jobs:
           # ⚠️ REPLACE THE PLACEHOLDERS BELOW WITH YOUR ACTUAL TENANCY OCID (ocid1.tenancy.oc1...)
           OCI_COMPARTMENT_OCID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           COMPARTMENT_OCID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
+          compartmentId="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           
           OCI_IMAGE_ID="ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
           OCI_OCPUS="4"
