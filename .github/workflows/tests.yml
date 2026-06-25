@@ -25,16 +25,22 @@ jobs:
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress --optimize-autoloader
 
+      # This creates a real, temporary file on the runner containing your private key text
+      - name: Create Private Key File
+        run: |
+          echo "${{ secrets.OCI_PRIVATE_KEY || vars.OCI_PRIVATE_KEY }}" > oci_private_key.pem
+          chmod 600 oci_private_key.pem
+
       - name: Execute Provisioner Script
         run: php index.php
         env:
-          # index.php strictly reads these exact 5 variable blocks.
-          # We check both Secrets and Variables to guarantee they are caught!
           OCI_REGION: ${{ secrets.OCI_REGION || vars.OCI_REGION }}
           OCI_USER_ID: ${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}
           OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}
           OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}
-          OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY || vars.OCI_PRIVATE_KEY }}
+          
+          # We pass the PATH to the key file we just generated above!
+          OCI_PRIVATE_KEY_FILENAME: oci_private_key.pem
           
           OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID || vars.OCI_COMPARTMENT_OCID }}
           
