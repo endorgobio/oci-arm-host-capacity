@@ -47,24 +47,9 @@ jobs:
           OCI_SSH_PUBLIC_KEY="${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}"
           TELEGRAM_USER_ID="${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}"
           TELEGRAM_BOT_API_KEY="${{ secrets.TELEGRAM_BOT_API_KEY || vars.TELEGRAM_BOT_API_KEY }}"
-          OCI_AVAILABILITY_DOMAIN="${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}"
-          OCI_SUBNET_ID="${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
+          OCI_AVAILABILITY_DOMAIN="ueCB:SA-BOGOTA-1-AD-1"
+          OCI_SUBNET_ID="ocid1.subnet.oc1.sa-bogota-1.aaaaaaaay7aetpmqb2iao7j42kjzidbqf7og64kjnndiblnyqihdiciq6c4a"
           EOF
-
-      # DIAGNOSTIC: prints the PHP that handles tenancy/compartment (remove once fixed)
-      - name: Dump Config + OciApi internals
-        run: |
-          echo "===== Config class (constructor + property assignment) ====="
-          find . -path ./vendor -prune -o -name "Config.php" -print | grep -v vendor | while read f; do
-            echo "--- $f ---"
-            grep -n "tenancy\|compartment\|function __construct\|public \$\|private \$\|protected \$" "$f"
-          done
-          echo ""
-          echo "===== index.php lines 1-55 ====="
-          sed -n '1,55p' index.php
-          echo ""
-          echo "===== src/OciApi.php lines 40-135 ====="
-          sed -n '40,135p' src/OciApi.php
 
       - name: Execute Provisioner Script
         env:
@@ -81,6 +66,6 @@ jobs:
           OCI_SSH_PUBLIC_KEY: "${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}"
           TELEGRAM_USER_ID: "${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}"
           TELEGRAM_BOT_API_KEY: "${{ secrets.TELEGRAM_BOT_API_KEY || vars.TELEGRAM_BOT_API_KEY }}"
-          OCI_AVAILABILITY_DOMAIN: "${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}"
-          OCI_SUBNET_ID: "${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
+          OCI_AVAILABILITY_DOMAIN: "ueCB:SA-BOGOTA-1-AD-1"
+          OCI_SUBNET_ID: "ocid1.subnet.oc1.sa-bogota-1.aaaaaaaay7aetpmqb2iao7j42kjzidbqf7og64kjnndiblnyqihdiciq6c4a"
         run: php index.php
