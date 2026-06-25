@@ -28,36 +28,26 @@ jobs:
       - name: Execute Provisioner Script
         run: php index.php
         env:
-          # Standard Uppercase (Matches your current Secrets exactly)
-          OCI_REGION: ${{ secrets.OCI_REGION }}
-          OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
-          OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
-          OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
-          OCI_PRIVATE_KEY: ${{ secrets.OCI_PRIVATE_KEY }}
-          OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID }}
-
-          # Lowercase/CamelCase Fallbacks (Forces Hitrov signer library to catch them)
-          ociUserId: ${{ secrets.OCI_USER_OCID }}
-          ociTenancyId: ${{ secrets.OCI_TENANCY_OCID }}
-          ociKeyFingerprint: ${{ secrets.OCI_FINGERPRINT }}
-          ociPrivateKeyFilename: ${{ secrets.OCI_PRIVATE_KEY }}
-
-          # Alternate Library Standards
-          OCI_USER_ID: ${{ secrets.OCI_USER_OCID }}
-          OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID }}
-          OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
-          OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY }}
+          # index.php strictly reads these exact 5 variable blocks.
+          # We check both Secrets and Variables to guarantee they are caught!
+          OCI_REGION: ${{ secrets.OCI_REGION || vars.OCI_REGION }}
+          OCI_USER_ID: ${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}
+          OCI_TENANCY_ID: ${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}
+          OCI_KEY_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}
+          OCI_PRIVATE_KEY_FILENAME: ${{ secrets.OCI_PRIVATE_KEY || vars.OCI_PRIVATE_KEY }}
           
-          # Hardware Specs
-          OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID }}
-          OCI_OCPUS: ${{ secrets.OCI_OCPUS }}
-          OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS }}
-          OCI_SHAPE: ${{ secrets.OCI_SHAPE }}
-          OCI_MAX_INSTANCES: ${{ secrets.OCI_MAX_INSTANCES }}
-          OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
+          OCI_COMPARTMENT_OCID: ${{ secrets.OCI_COMPARTMENT_OCID || vars.OCI_COMPARTMENT_OCID }}
           
-          # Optional parameters
-          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
-          TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY }}
-          OCI_AVAILABILITY_DOMAIN: ${{ secrets.OCI_AVAILABILITY_DOMAIN }}
-          OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID }}
+          # Hardware Specifications
+          OCI_IMAGE_ID: ${{ secrets.OCI_IMAGE_ID || vars.OCI_IMAGE_ID }}
+          OCI_OCPUS: ${{ secrets.OCI_OCPUS || vars.OCI_OCPUS }}
+          OCI_MEMORY_IN_GBS: ${{ secrets.OCI_MEMORY_IN_GBS || vars.OCI_MEMORY_IN_GBS }}
+          OCI_SHAPE: ${{ secrets.OCI_SHAPE || vars.OCI_SHAPE }}
+          OCI_MAX_INSTANCES: ${{ secrets.OCI_MAX_INSTANCES || vars.OCI_MAX_INSTANCES }}
+          OCI_SSH_PUBLIC_KEY: ${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}
+          
+          # Optional configurations
+          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}
+          TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY || vars.TELEGRAM_BOT_API_KEY }}
+          OCI_AVAILABILITY_DOMAIN: ${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}
+          OCI_SUBNET_ID: ${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}
