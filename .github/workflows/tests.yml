@@ -1,5 +1,4 @@
 name: OCI Instance Provisioner Loop
-
 on:
   workflow_dispatch:
   schedule:
@@ -33,7 +32,7 @@ jobs:
           EOF
           chmod 600 oci_private_key.pem
 
-      # 2. Generates the .env file with hardcoded strings
+      # 2. Generates the .env file
       - name: Generate Local .env File
         run: |
           cat << 'EOF' > .env
@@ -42,25 +41,54 @@ jobs:
           OCI_TENANCY_ID="${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}"
           OCI_KEY_FINGERPRINT="${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}"
           OCI_PRIVATE_KEY_FILENAME="oci_private_key.pem"
-          
-          # ⚠️ REPLACE THE PLACEHOLDERS BELOW WITH YOUR ACTUAL TENANCY OCID (ocid1.tenancy.oc1...)
+
           OCI_COMPARTMENT_OCID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           COMPARTMENT_OCID="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
           compartmentId="ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
-          
+
           OCI_IMAGE_ID="ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
           OCI_OCPUS="4"
           OCI_MEMORY_IN_GBS="24"
           OCI_SHAPE="VM.Standard.A1.Flex"
           OCI_MAX_INSTANCES="1"
           OCI_SSH_PUBLIC_KEY="${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}"
-          
+
           TELEGRAM_USER_ID="${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}"
           TELEGRAM_BOT_API_KEY="${{ secrets.TELEGRAM_BOT_API_KEY || vars.TELEGRAM_BOT_API_KEY }}"
           OCI_AVAILABILITY_DOMAIN="${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}"
           OCI_SUBNET_ID="${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
           EOF
 
-      # 3. Executes the script cleanly
+      # 2b. Debug: confirm what PHP actually reads (remove once working)
+      - name: Debug compartment value
+        run: |
+          echo "=== grep .env ==="
+          grep -i compartment .env || echo "NOT FOUND in .env"
+          echo "=== what PHP sees ==="
+          php -r 'require "vendor/autoload.php";
+            $d = Dotenv\Dotenv::createImmutable(__DIR__); $d->safeLoad();
+            echo "\$_ENV:  [".($_ENV["OCI_COMPARTMENT_OCID"] ?? "NULL")."]\n";
+            echo "getenv: [".(getenv("OCI_COMPARTMENT_OCID") ?: "NULL")."]\n";'
+
+      # 3. Executes the script with vars also injected as REAL env vars
       - name: Execute Provisioner Script
+        env:
+          OCI_REGION: "sa-bogota-1"
+          OCI_USER_ID: "${{ secrets.OCI_USER_OCID || vars.OCI_USER_OCID }}"
+          OCI_TENANCY_ID: "${{ secrets.OCI_TENANCY_OCID || vars.OCI_TENANCY_OCID }}"
+          OCI_KEY_FINGERPRINT: "${{ secrets.OCI_FINGERPRINT || vars.OCI_FINGERPRINT }}"
+          OCI_PRIVATE_KEY_FILENAME: "oci_private_key.pem"
+          OCI_COMPARTMENT_OCID: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
+          COMPARTMENT_OCID: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
+          compartmentId: "ocid1.tenancy.oc1..aaaaaaaar2wm6lvli54b7tkzvu3vwnftuekuavabdgzhdfyd323slbuo7b7a"
+          OCI_IMAGE_ID: "ocid1.image.oc1.sa-bogota-1.aaaaaaaaamazzndcgdip6ca3nh5krclvupqn65x23wif6kr3hbm3zbcplc7q"
+          OCI_OCPUS: "4"
+          OCI_MEMORY_IN_GBS: "24"
+          OCI_SHAPE: "VM.Standard.A1.Flex"
+          OCI_MAX_INSTANCES: "1"
+          OCI_SSH_PUBLIC_KEY: "${{ secrets.OCI_SSH_PUBLIC_KEY || vars.OCI_SSH_PUBLIC_KEY }}"
+          TELEGRAM_USER_ID: "${{ secrets.TELEGRAM_USER_ID || vars.TELEGRAM_USER_ID }}"
+          TELEGRAM_BOT_API_KEY: "${{ secrets.TELEGRAM_BOT_API_KEY || vars.TELEGRAM_BOT_API_KEY }}"
+          OCI_AVAILABILITY_DOMAIN: "${{ secrets.OCI_AVAILABILITY_DOMAIN || vars.OCI_AVAILABILITY_DOMAIN }}"
+          OCI_SUBNET_ID: "${{ secrets.OCI_SUBNET_ID || vars.OCI_SUBNET_ID }}"
         run: php index.php
